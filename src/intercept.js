@@ -1,5 +1,3 @@
-const componentOverrideMapping = require("./componentOverrideMapping");
-const NormalModuleOverridePlugin = require("./moduleOverrideWebpackPlugin");
 const { Targetables } = require("@magento/pwa-buildpack");
 
 /**
@@ -21,9 +19,9 @@ module.exports = targets => {
         flags[targets.name] = {esModules: true, cssModules: true};
     });
 
-    targets.of('@magento/pwa-buildpack').webpackCompiler.tap(compiler => {
-        new NormalModuleOverridePlugin(componentOverrideMapping).apply(compiler);
-    });
+    // targets.of('@magento/pwa-buildpack').webpackCompiler.tap(compiler => {
+    //     new NormalModuleOverridePlugin(componentOverrideMapping).apply(compiler);
+    // });
 
     const {
         checkoutPagePaymentTypes,
@@ -38,6 +36,12 @@ module.exports = targets => {
                 name: 'Amazon Checkout Review Return URL',
                 pattern: '/amazon_pay/login/checkout',
                 path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/checkout'
+            });
+
+            routesArray.push({
+                name: 'Amazon Checkout Result Return URL',
+                pattern: '/amazon_pay/checkout/completeSession',
+                path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/complete'
             });
 
             return routesArray;
