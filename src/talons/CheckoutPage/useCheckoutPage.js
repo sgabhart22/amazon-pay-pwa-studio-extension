@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useLazyQuery } from '@apollo/client';
-import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/CheckoutPage/checkoutPage.gql.js';
+
+
 import { useUpdateCheckoutSession } from '../AmazonCheckoutSession/useUpdateCheckoutSession';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 
@@ -11,7 +11,6 @@ const wrapUseCheckoutPage = original => {
             ...defaults 
         } = original(props);
 
-        const { getOrderDetailsQuery } = DEFAULT_OPERATIONS;
         const [{cartId}] = useCartContext();
         
         const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session'))?.id; 
@@ -19,22 +18,9 @@ const wrapUseCheckoutPage = original => {
 
         const {loading: updateLoading, error: updateError, data: updateData, updateCheckoutSession} = useUpdateCheckoutSession();
 
-        const [
-            getOrderDetails,
-            { data: amazonOrderDetailsData, loading: amazonOrderDetailsLoading }
-        ] = useLazyQuery(getOrderDetailsQuery, {
-            fetchPolicy: 'no-cache'
-        });
-
         var myHandlePlaceOrder = handlePlaceOrder;
         if (isAmazonCheckout) {
             myHandlePlaceOrder = useCallback(async () => {
-                await getOrderDetails({
-                    variables: {
-                        cartId
-                    }
-                });
-
                 updateCheckoutSession({
                     variables: {cartId: cartId, amazonSessionId: checkoutSessionId}
                 });
@@ -50,8 +36,6 @@ const wrapUseCheckoutPage = original => {
 
         return {
             handlePlaceOrder: myHandlePlaceOrder,
-            amazonOrderDetailsData,
-            amazonOrderDetailsLoading,
             ...defaults
         };
     };

@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
+import { useLazyQuery } from '@apollo/client';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
 import OrderConfirmationPage from '@magento/venia-ui/lib/components/CheckoutPage/OrderConfirmationPage';
 import { useCompleteCheckoutSession } from '../talons/AmazonCheckoutSession/useCompleteCheckoutSession';
-import { useCheckoutPage } from '@magento/peregrine/lib/talons/CheckoutPage/useCheckoutPage';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
+
+import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/CheckoutPage/checkoutPage.gql.js';
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -12,12 +14,15 @@ function useQuery() {
 
 const CompleteController = props => {    
     const checkoutSessionId = useQuery().get('amazonCheckoutSessionId');
+    const { getOrderDetailsQuery } = DEFAULT_OPERATIONS;
     
-    const {
-        amazonOrderDetailsData,
-        amazonOrderDetailsLoading
-    } = useCheckoutPage();
-    
+    const [
+        getOrderDetails,
+        { data: amazonOrderDetailsData, loading: amazonOrderDetailsLoading }
+    ] = useLazyQuery(getOrderDetailsQuery, {
+        fetchPolicy: 'no-cache'
+    });
+
     const {
         loading: completeLoading,
         error: completeError,
@@ -27,7 +32,13 @@ const CompleteController = props => {
 
     const [{cartId}] = useCartContext();
 
-    useEffect(() => {
+    useEffect(async () => {
+        await getOrderDetails({
+            variables: {
+                cartId
+            }
+        });
+
         completeCheckoutSession({
             variables: {cartId: cartId, amazonSessionId: checkoutSessionId}
         });
