@@ -3,25 +3,24 @@ import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import DEFAULT_OPERATIONS from './complete.gql';
 
 export const useCompleteCheckoutSession = props => {
-    const { completeCheckoutSession } = DEFAULT_OPERATIONS;
-    const [complete, {loading, error, data}] = useMutation(completeCheckoutSession);
+    const { completeCheckoutSessionMutation } = DEFAULT_OPERATIONS;
+    const [completeCheckoutSession, {loading, error, data}] = useMutation(completeCheckoutSessionMutation);
     
-    const [{cartId}] = useCartContext();
-    const amazonSessionId = props.checkoutSessionId;
+    // const [{cartId}] = useCartContext();
+    // const amazonSessionId = props.checkoutSessionId;
 
-    complete({
-        variables: {cartId: cartId, amazonSessionId: amazonSessionId}
-    });
+    // complete({
+    //     variables: {cartId: cartId, amazonSessionId: amazonSessionId}
+    // });
 
-    const completeResponse = data ?
-        data.completeCheckoutSession :
-        null;
+    // const completeResponse = data ?
+    //     data.completeCheckoutSession :
+    //     null;
 
     return {
         loading,
         error,
-        incrementId: completeResponse.increment_id,
-        message: completeResponse.message,
-        success: completeResponse.success
+        data,
+        completeCheckoutSession
     };
 };

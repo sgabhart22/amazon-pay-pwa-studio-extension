@@ -9,5 +9,5 @@ export const UPDATE_CHECKOUT_SESSION = gql`
 `;
 
 export default {
-    updateCheckoutSession: UPDATE_CHECKOUT_SESSION
+    updateCheckoutSessionMutation: UPDATE_CHECKOUT_SESSION
 };

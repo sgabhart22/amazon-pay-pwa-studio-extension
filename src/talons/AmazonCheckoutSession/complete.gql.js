@@ -11,5 +11,5 @@ export const COMPLETE_CHECKOUT_SESSION = gql`
 `;
 
 export default {
-    completeCheckoutSession: COMPLETE_CHECKOUT_SESSION
+    completeCheckoutSessionMutation: COMPLETE_CHECKOUT_SESSION
 };

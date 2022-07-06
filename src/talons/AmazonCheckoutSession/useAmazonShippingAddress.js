@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { useCartContext } from '@magento/peregrine/lib/context/cart';
+import cart, { useCartContext } from '@magento/peregrine/lib/context/cart';
 import DEFAULT_OPERATIONS from './details.gql'
 
 export const useAmazonShippingAddress = props => {
@@ -13,6 +13,7 @@ export const useAmazonShippingAddress = props => {
     });
 
     const [addressInput, setAddressInput] = useState(null);
+    const [emailInput, setEmailInput] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -29,17 +30,24 @@ export const useAmazonShippingAddress = props => {
                     "telephone": amazonAddress.telephone
                 }
             };
+
             setAddressInput({
                 "cart_id": cartId,
                 "shipping_addresses": [
                     quoteAddress
                 ]
             });
+
+            setEmailInput({
+                "cart_id": cartId,
+                "email": amazonAddress.email
+            });
         }
     }, [data]);
 
     return {
         loading,
-        addressInput
+        addressInput,
+        emailInput
     };
 };
