@@ -1,15 +1,5 @@
 const { Targetables } = require("@magento/pwa-buildpack");
 
-/**
- * Custom intercept file for the extension
- * By default you can only use target of @magento/pwa-buildpack.
- *
- * If do want extend @magento/peregrine or @magento/venia-ui
- * you should add them to peerDependencies to your package.json
- *
- * If you want to add overwrites for @magento/venia-ui components you can use
- * moduleOverrideWebpackPlugin and componentOverrideMapping
- */
 module.exports = targets => {
     targets.of('@magento/pwa-buildpack').specialFeatures.tap(flags => {
         /**
@@ -120,6 +110,9 @@ module.exports = targets => {
         );
         talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentMethods.wrapWith(
             '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentMethods.js'
+        );
+        talonWrapperConfig.CheckoutPage.ShippingInformation.useShippingInformation.wrapWith(
+            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/ShippingInformation/useShippingInformationWrapper.js'
         );
     });
 };
