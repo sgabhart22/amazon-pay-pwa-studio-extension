@@ -1,24 +1,21 @@
 import { useCallback, useEffect } from 'react';
-// import { useMutation } from '@apollo/client';
-import { useUpdateCheckoutSession } from '../AmazonCheckoutSession/useUpdateCheckoutSession';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
-
-// import DEFAULT_OPERATIONS from './PaymentInformation/paymentInformation.gql';
-// import { useAmazonPaymentMethod } from './PaymentInformation/useAmazonPaymentMethod';
+import { useUpdateCheckoutSession } from '../AmazonCheckoutSession/useUpdateCheckoutSession';
+import useScript from '@magento/peregrine/lib/hooks/useScript';
 
 const wrapUseCheckoutPage = original => {
     return function useCheckoutPage(props) {
         const { 
             handlePlaceOrder,
+            isLoading,
             ...defaults 
         } = original(props);
         
         const [{cartId}] = useCartContext();
+        const amznScriptStatus = useScript("https://static-na.payments-amazon.com/checkout.js");
         
         const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session'))?.id; 
         const isAmazonCheckout = checkoutSessionId;
-
-        // const { setAmazonPaymentMethodMutation } = DEFAULT_OPERATIONS;
 
         const {
             loading: updateLoading,
@@ -26,15 +23,6 @@ const wrapUseCheckoutPage = original => {
             data: updateData, 
             updateCheckoutSession
         } = useUpdateCheckoutSession();
-
-        // const [
-        //     setPaymentMethod, 
-        //     {
-        //         error: paymentMethodMutationError,
-        //         called: paymentMethodMutationCalled,
-        //         loading: paymentMethodMutationLoading
-        //     }
-        // ] = useMutation(setAmazonPaymentMethodMutation);
 
         var myHandlePlaceOrder = handlePlaceOrder;
        
@@ -51,10 +39,23 @@ const wrapUseCheckoutPage = original => {
                 const redirectUrl = updateData.updateCheckoutSession.redirectUrl;
                 window.location.href = redirectUrl;
             }
-        }, [updateLoading, updateData])
+        }, [updateLoading, updateData]);
+
+        useEffect(() => {
+            if (isAmazonCheckout && amznScriptStatus === 'ready' && !isLoading) {
+                const editSelector = '.shippingInformation-editButton-8ST';
+                if (document.querySelectorAll(editSelector).length) {
+                    window.amazon.Pay.bindChangeAction(editSelector, {
+                        amazonCheckoutSessionId: checkoutSessionId,
+                        changeAction: 'changeAddress'
+                    });
+                }
+            }
+        }, [amznScriptStatus, isLoading]);
 
         return {
             handlePlaceOrder: myHandlePlaceOrder,
+            isLoading,
             ...defaults
         };
     };
