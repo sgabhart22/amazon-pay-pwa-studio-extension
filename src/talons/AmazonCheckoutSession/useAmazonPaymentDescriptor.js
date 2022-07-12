@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { useEffect } from 'react';
 import DEFAULT_OPERATIONS from './details.gql'
 
 export const useAmazonPaymentDescriptor = props => {

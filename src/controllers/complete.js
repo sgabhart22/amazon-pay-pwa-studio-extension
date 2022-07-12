@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
 import OrderConfirmationPage from '@magento/venia-ui/lib/components/CheckoutPage/OrderConfirmationPage';
 import { useCompleteCheckoutSession } from '../talons/AmazonCheckoutSession/useCompleteCheckoutSession';
@@ -14,7 +14,7 @@ function useQuery() {
 
 const CompleteController = props => {    
     const checkoutSessionId = useQuery().get('amazonCheckoutSessionId');
-    const { getOrderDetailsQuery } = DEFAULT_OPERATIONS;
+    const { getOrderDetailsQuery, createCartMutation } = DEFAULT_OPERATIONS;
     
     const [
         getOrderDetails,
@@ -30,7 +30,9 @@ const CompleteController = props => {
         completeCheckoutSession
     } = useCompleteCheckoutSession();
 
-    const [{cartId}] = useCartContext();
+    const apolloClient = useApolloClient();
+    const [{ cartId }, { createCart, removeCart }] = useCartContext();
+    const [fetchCartId] = useMutation(createCartMutation);
 
     useEffect(async () => {
         await getOrderDetails({
@@ -42,6 +44,16 @@ const CompleteController = props => {
         completeCheckoutSession({
             variables: {cartId: cartId, amazonSessionId: checkoutSessionId}
         });
+
+        localStorage.removeItem('amazon-checkout-session');
+        await removeCart();
+        await apolloClient.clearCacheData(apolloClient, 'cart');
+
+        await createCart({
+            fetchCartId
+        });
+
+        window.history.replaceState(null, null, '/checkout/success');
     }, []);
 
     const controllerContent = (completeData && amazonOrderDetailsData) ? (

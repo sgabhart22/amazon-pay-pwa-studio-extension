@@ -116,7 +116,10 @@ module.exports = targets => {
 
     talonsTarget.tap((talonWrapperConfig) => {
         talonWrapperConfig.CheckoutPage.useCheckoutPage.wrapWith(
-          '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/useCheckoutPage.js'
+            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/useCheckoutPage.js'
+        );
+        talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentMethods.wrapWith(
+            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentMethods.js'
         );
     });
 };

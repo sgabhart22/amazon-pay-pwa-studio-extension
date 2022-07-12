@@ -1,43 +1,30 @@
-import { useQuery } from '@apollo/client';
-import useFieldState from '@magento/peregrine/lib/hooks/hook-wrappers/useInformedFieldStateWrapper';
-import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/CheckoutPage/PaymentInformation/paymentMethods.gql';
-import mergeOperations from '@magento/peregrine/lib/util/shallowMerge';
+const wrapUsePaymentMethods = original => {
+    return function usePaymentMethods(props) {
+        const {
+            availablePaymentMethods,
+            initialSelectedMethod,
+            ...defaults
+        } = original(props);
+    
+        var myPaymentMethods = availablePaymentMethods;
+    
+        const isAmazonCheckout = localStorage.getItem('amazon-checkout-session');
+        if (isAmazonCheckout) {
+            myPaymentMethods = availablePaymentMethods.filter((method) => {
+                return method.code === 'amazon_payment_v2';
+            });
+        }
 
-import { useCartContext } from '@magento/peregrine/lib/context/cart';
+        const myInitialSelectedMethod =
+            (myPaymentMethods.length && myPaymentMethods[0].code) ||
+            null;
 
-export const usePaymentMethods = props => {
-    const operations = mergeOperations(DEFAULT_OPERATIONS, props.operations);
-    const { getPaymentMethodsQuery } = operations;
-
-    const [{ cartId }] = useCartContext();
-
-    const { data, loading } = useQuery(getPaymentMethodsQuery, {
-        skip: !cartId,
-        variables: { cartId }
-    });
-
-    const { value: currentSelectedPaymentMethod } = useFieldState(
-        'selectedPaymentMethod'
-    );
-
-    var availablePaymentMethods =
-        (data && data.cart.available_payment_methods) || [];
-
-    const isAmazonCheckout = localStorage.getItem('amazon-checkout-session');
-    if (isAmazonCheckout) {
-        availablePaymentMethods = availablePaymentMethods.filter((method) => {
-            return method.code === 'amazon_payment_v2';
-        });
+        return {
+            availablePaymentMethods: myPaymentMethods,
+            initialSelectedMethod: myInitialSelectedMethod,
+            ...defaults
+        };
     }
-
-    const initialSelectedMethod =
-        (availablePaymentMethods.length && availablePaymentMethods[0].code) ||
-        null;
-
-    return {
-        availablePaymentMethods,
-        currentSelectedPaymentMethod,
-        initialSelectedMethod,
-        isLoading: loading
-    };
 };
+
+export default wrapUsePaymentMethods;
