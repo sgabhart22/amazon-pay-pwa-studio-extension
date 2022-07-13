@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { func, shape, string } from 'prop-types';
 import { FormattedMessage } from 'react-intl';
-import { Edit2 as EditIcon } from 'react-feather';
 
 import { gql, useQuery } from '@apollo/client';
 
 import { useStyle } from '@magento/venia-ui/lib/classify';
-import Icon from '@magento/venia-ui/lib/components/Icon';
-import LinkButton from '@magento/venia-ui/lib/components/LinkButton';
 import AddressCard from '@magento/venia-ui/lib/components/CheckoutPage/AddressBook/addressCard';
 
 import defaultClasses from './summary.module.css';
 import { useAmazonPaymentDescriptor } from '../../../talons/AmazonCheckoutSession/useAmazonPaymentDescriptor';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
+import { useAppContext } from '@magento/peregrine/lib/context/app';
 
 const Summary = props => {
     const { onEdit } = props;
@@ -22,6 +20,7 @@ const Summary = props => {
     const { paymentDescriptor } = useAmazonPaymentDescriptor({amazonSessionId: checkoutSessionId});
 
     const [{cartId}] = useCartContext();
+    const [{drawer},] = useAppContext();
 
     const formattedDescriptor = paymentDescriptor ?
         paymentDescriptor.payment.split('(')[0] : null;
@@ -29,21 +28,28 @@ const Summary = props => {
         ` (${formattedDescriptor})` : '';
 
     const [billingCardData, setBillingCardData] = useState(null);
+    const [billingUpdated, setBillingUpdated] = useState(false);
 
     const { 
         loading: billingLoading,
         data: billingData,
-        error: billingError 
+        error: billingError,
+        refetch
     } = useQuery(GET_BILLING_ADDRESS, {
         variables: {cartId: cartId}
     });
+
+    const editBilling = () => {
+        onEdit();
+        setBillingUpdated(true);
+    }
 
     const billingAddressCardContent = billingCardData ? (
         <AddressCard
             address={billingCardData}
             isSelected={true}
             onSelection={() => {}}
-            onEdit={() => {}} />
+            onEdit={editBilling} />    
     ) : null;
 
     useEffect(() => {
@@ -65,7 +71,17 @@ const Summary = props => {
             
             setBillingCardData(addressData);
         }
-    }, [billingData]);
+    }, [billingData, billingUpdated]);
+
+    useEffect(() => {
+        if (!drawer && billingUpdated) {
+            setBillingUpdated(false);
+            setBillingCardData(null);
+            refetch({
+                variables: {cartId: cartId}
+            });
+        }
+    }, [drawer, billingUpdated])
 
     return (
         <div className={classes.root}>
@@ -76,23 +92,6 @@ const Summary = props => {
                         defaultMessage={'Payment Information'}
                     />
                 </h5>
-                <LinkButton
-                    className={classes.edit_button}
-                    onClick={onEdit}
-                    type="button"
-                >
-                    <Icon
-                        size={16}
-                        src={EditIcon}
-                        classes={{ icon: classes.edit_icon }}
-                    />
-                    <span className={classes.edit_text}>
-                        <FormattedMessage
-                            id={'global.editButton'}
-                            defaultMessage={'Edit'}
-                        />
-                    </span>
-                </LinkButton>
             </div>
             <div className={classes.amazon_pay_details_container}>
                 <span>

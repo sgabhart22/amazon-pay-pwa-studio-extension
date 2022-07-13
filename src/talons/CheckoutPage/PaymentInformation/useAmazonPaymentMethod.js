@@ -2,12 +2,13 @@ import { useCallback, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import DEFAULT_OPERATIONS from './paymentInformation.gql';
+import { useCheckoutContext } from '@magento/peregrine/lib/context/checkout';
 
 export const useAmazonPaymentMethod = props => {
     const { setAmazonPaymentMethodMutation } = DEFAULT_OPERATIONS;
     const { resetShouldSubmit, onPaymentSuccess, onPaymentError } = props;
     const [{cartId}] = useCartContext();
-    
+
     const [
         setPaymentMethod, 
         {
@@ -25,6 +26,7 @@ export const useAmazonPaymentMethod = props => {
         setPaymentMethod({
             variables: { cartId }
         });
+
     }, [setPaymentMethod, cartId]);
 
     useEffect(() => {

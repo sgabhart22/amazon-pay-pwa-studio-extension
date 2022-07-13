@@ -5,7 +5,7 @@ const wrapUseShippingInformation = original => {
             ...defaults 
         } = original(props);
         
-        const isAmazonCheckout = JSON.parse(localStorage.getItem('amazon-checkout-session')).id;
+        const isAmazonCheckout = JSON.parse(localStorage.getItem('amazon-checkout-session'))?.id;
         
         var myHandleEditShipping = handleEditShipping;
         if (isAmazonCheckout) {

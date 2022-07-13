@@ -2,16 +2,8 @@ const { Targetables } = require("@magento/pwa-buildpack");
 
 module.exports = targets => {
     targets.of('@magento/pwa-buildpack').specialFeatures.tap(flags => {
-        /**
-         *  Wee need to activated esModules and cssModules to allow build pack to load our extension
-         * {@link https://magento.github.io/pwa-studio/pwa-buildpack/reference/configure-webpack/#special-flags}.
-         */
         flags[targets.name] = {esModules: true, cssModules: true};
     });
-
-    // targets.of('@magento/pwa-buildpack').webpackCompiler.tap(compiler => {
-    //     new NormalModuleOverridePlugin(componentOverrideMapping).apply(compiler);
-    // });
 
     const {
         checkoutPagePaymentTypes,
@@ -113,6 +105,9 @@ module.exports = targets => {
         );
         talonWrapperConfig.CheckoutPage.ShippingInformation.useShippingInformation.wrapWith(
             '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/ShippingInformation/useShippingInformationWrapper.js'
+        );
+        talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentInformation.wrapWith(
+            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentInformationWrapper.js'
         );
     });
 };
