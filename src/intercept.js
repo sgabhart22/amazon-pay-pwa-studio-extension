@@ -75,6 +75,9 @@ module.exports = targets => {
     const PriceSummaryComponent = targetableFactory.module(
         '@magento/venia-ui/lib/components/CartPage/PriceSummary/priceSummary.js'
     );
+    const SignInComponent = targetableFactory.module(
+        '@magento/venia-ui/lib/components/SignIn/signIn.js'
+    );
 
     PdpComponent.insertAfterSource(
         './CustomAttributes\';',
@@ -82,7 +85,7 @@ module.exports = targets => {
     );
     PdpComponent.insertAfterSource(
         '{cartActionContent}',
-        '\n\t\t\t\t\t<AmazonButton/>'
+        '\n\t\t\t\t\t<AmazonButton productType={\'checkout\'}/>'
     );
     MiniCartComponent.insertAfterSource(
         './ProductList\';',
@@ -90,7 +93,15 @@ module.exports = targets => {
     );
     MiniCartComponent.insertAfterSource(
         'defaultMessage={\'CHECKOUT\'}\n                    />\n                </Button>\n',
-        '\t\t\t\t<AmazonButton/>\n'
+        '\t\t\t\t<AmazonButton productType={\'checkout\'}/>\n'
+    );
+    SignInComponent.insertAfterSource(
+        'import GoogleRecaptcha from \'../GoogleReCaptcha\';',
+        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+    );
+    SignInComponent.insertAfterSource(
+        'defaultMessage={\'Create an Account\'}\n                        />\n                    </Button>\n',
+        '\t\t\t\t\t<AmazonButton productType={\'signin\'}/>\n'
     );
 
     const peregrineTargets = targets.of("@magento/peregrine");

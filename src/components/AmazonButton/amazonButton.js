@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { string } from 'prop-types';
 
 import { useAmazonConfig } from '../../talons/AmazonCheckoutSession/useAmazonConfig';
@@ -16,6 +16,10 @@ const AmazonButton = props => {
     const amznScriptStatus = useScript("https://static-na.payments-amazon.com/checkout.js");
     const [amznLoading, setAmznLoading] = useState(true);
 
+    const productType = props.productType === 'checkout' ?
+        'PayAndShip'
+        : 'SignIn';
+
     // TODO: modularize to allow for paynow/sign in usage
     useEffect(() => {
         if (!loading) {
@@ -25,16 +29,24 @@ const AmazonButton = props => {
                     publicKeyId: amazonConfig.public_key_id,
                     ledgerCurrency: amazonConfig.currency,
                     checkoutLanguage: amazonConfig.language,
-                    productType: 'PayAndShip',
+                    productType: productType,
                     placement: 'Other',
                     buttonColor: amazonConfig.button_color,
-                    createCheckoutSessionConfig: {
-                        payloadJSON: amazonConfig.checkout_payload,
-                        signature: amazonConfig.checkout_signature
-                    },
                     sandbox: amazonConfig.sandbox
                 };
                 setAmznLoading(false);
+
+                if (productType === 'SignIn') {
+                    buttonConfig.signInConfig = {
+                        payloadJSON: amazonConfig.login_payload,
+                        signature: amazonConfig.login_signature
+                    };
+                } else {
+                    buttonConfig.createCheckoutSessionConfig = {
+                        payloadJSON: amazonConfig.checkout_payload,
+                        signature: amazonConfig.checkout_signature
+                    };
+                }
 
                 window.amazon.Pay.renderButton('#AmazonButton', buttonConfig);
             }
@@ -52,7 +64,7 @@ const AmazonButton = props => {
 
 AmazonButton.propTypes = {
     placement: string,
-    productType: string
+    productType: string.isRequired
 };
 
 export default AmazonButton;
