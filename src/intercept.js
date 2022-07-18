@@ -26,6 +26,12 @@ module.exports = targets => {
                 path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/complete'
             });
 
+            routesArray.push({
+                name: 'Amazon Sign In Result Return URL',
+                pattern: '/amazon_pay/login/authorize',
+                path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/signin'
+            });
+
             return routesArray;
         }
     );

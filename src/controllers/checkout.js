@@ -48,8 +48,9 @@ const CheckoutController = props => {
     });
     const { loading: billingLoading, addressInput: billingAddressInput } = billingTalonProps;
 
-    const doneLoading = setShippingData
-        && guestEmailData
+    const doneLoading = (setShippingData || setShippingError)
+        && (guestEmailData || guestEmailError)
+        && (setBillingData || setBillingError)
         && addressInput
         && emailInput
         && billingAddressInput;
