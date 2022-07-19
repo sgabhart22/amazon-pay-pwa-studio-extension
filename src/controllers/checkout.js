@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
 
-import { useShippingInformation } from '../talons/ShippingInformation/useShippingInformation';
-import { useBillingAddress } from '../talons/ShippingInformation/useBillingInformation';
-import { useGuestEmail } from '../talons/ShippingInformation/useGuestEmail';
-import { useAmazonAddress } from '../talons/AmazonCheckoutSession/useAmazonAddress';
+import { useShippingInformation } from '../hooks/useShippingInformation';
+import { useBillingAddress } from '../hooks/useBillingInformation';
+import { useCustomerEmail } from '../hooks/useCustomerEmail';
+
+import { useUserContext } from '@magento/peregrine/lib/context/user';
+import { useAmazonCheckout } from '../talons/AmazonCheckoutSession/useAmazonCheckout';
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -14,6 +16,8 @@ function useQuery() {
 const CheckoutController = props => {    
     const checkoutSessionId = useQuery().get('amazonCheckoutSessionId');
     localStorage.setItem('amazon-checkout-session', JSON.stringify({id: checkoutSessionId}));
+
+    const [{ isSignedIn }] = useUserContext();
 
     const {
         setShippingAddress,
@@ -24,10 +28,10 @@ const CheckoutController = props => {
 
     const {
         setGuestEmail,
-        guestEmailLoading,
-        guestEmailError,
-        guestEmailData
-    } = useGuestEmail();
+        customerEmailLoading,
+        customerEmailError,
+        customerEmailData
+    } = useCustomerEmail();
 
     const {
         setBillingAddress,
@@ -36,49 +40,46 @@ const CheckoutController = props => {
         setBillingError
     } = useBillingAddress();
 
-    const talonProps = useAmazonAddress({
-        amazonSessionId: checkoutSessionId,
-        addressType: 'shipping'
-    });
-    const { loading, addressInput, emailInput } = talonProps;
-
-    const billingTalonProps = useAmazonAddress({
-        amazonSessionId: checkoutSessionId,
-        addressType: 'billing'
-    });
-    const { loading: billingLoading, addressInput: billingAddressInput } = billingTalonProps;
+    const {
+        amazonShippingAddress,
+        amazonBillingAddress,
+        amazonEmail
+    } = useAmazonCheckout({amazonSessionId: checkoutSessionId});
 
     const doneLoading = (setShippingData || setShippingError)
-        && (guestEmailData || guestEmailError)
+        && (customerEmailData || customerEmailError)
         && (setBillingData || setBillingError)
-        && addressInput
-        && emailInput
-        && billingAddressInput;
+        && amazonShippingAddress
+        && amazonBillingAddress
+        && amazonEmail;
 
     useEffect(() => {
-        if (addressInput && emailInput && billingAddressInput) {
+        if (amazonShippingAddress && amazonEmail && amazonBillingAddress) {
+            if (!isSignedIn) {
+                setGuestEmail({
+                    variables: {input: amazonEmail}
+                });
+            }
+            
             setShippingAddress({
-                variables: {input: addressInput}
-            });
-            setGuestEmail({
-                variables: {input: emailInput}
+                variables: {input: amazonShippingAddress}
             });
             setBillingAddress({
                 variables: {
-                    cartId: billingAddressInput.cartId,
-                    firstName: billingAddressInput.firstName,
-                    lastName: billingAddressInput.lastName,
-                    city: billingAddressInput.city,
-                    postcode: billingAddressInput.postcode,
-                    region: billingAddressInput.region,
-                    country: billingAddressInput.country,
-                    street1: billingAddressInput.street1,
-                    street2: billingAddressInput.street2,
-                    phoneNumber: billingAddressInput.phoneNumber
+                    cartId: amazonBillingAddress.cartId,
+                    firstName: amazonBillingAddress.firstName,
+                    lastName: amazonBillingAddress.lastName,
+                    city: amazonBillingAddress.city,
+                    postcode: amazonBillingAddress.postcode,
+                    region: amazonBillingAddress.region,
+                    country: amazonBillingAddress.country,
+                    street1: amazonBillingAddress.street1,
+                    street2: amazonBillingAddress.street2,
+                    phoneNumber: amazonBillingAddress.phoneNumber
                 }
             });
         }
-    }, [addressInput, billingAddressInput, emailInput]);
+    }, [amazonShippingAddress, amazonBillingAddress, amazonEmail]);
 
     return doneLoading ? (
         <Redirect to="/checkout"/>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
-import { useUpdateCheckoutSession } from '../AmazonCheckoutSession/useUpdateCheckoutSession';
+import { useAmazonCheckout } from '../AmazonCheckoutSession/useAmazonCheckout';
 
 const wrapUseCheckoutPage = original => {
     return function useCheckoutPage(props) {
@@ -15,11 +15,10 @@ const wrapUseCheckoutPage = original => {
         const isAmazonCheckout = checkoutSessionId;
 
         const {
-            loading: updateLoading,
-            error: updateError,
-            data: updateData, 
-            updateCheckoutSession
-        } = useUpdateCheckoutSession();
+            updateCheckoutSession,
+            updateCheckoutSessionLoading,
+            updateCheckoutSessionData
+        } = useAmazonCheckout();
 
         var myHandlePlaceOrder = handlePlaceOrder;
        
@@ -32,11 +31,11 @@ const wrapUseCheckoutPage = original => {
         }
 
         useEffect(() => {
-            if (!updateLoading && updateData) {
-                const redirectUrl = updateData.updateCheckoutSession.redirectUrl;
+            if (!updateCheckoutSessionLoading && updateCheckoutSessionData) {
+                const redirectUrl = updateCheckoutSessionData.updateCheckoutSession.redirectUrl;
                 window.location.href = redirectUrl;
             }
-        }, [updateLoading, updateData]);
+        }, [updateCheckoutSessionLoading, updateCheckoutSessionData]);
 
         return {
             handlePlaceOrder: myHandlePlaceOrder,

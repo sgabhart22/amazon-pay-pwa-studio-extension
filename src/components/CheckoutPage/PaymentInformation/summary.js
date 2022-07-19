@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { func, shape, string } from 'prop-types';
 import { FormattedMessage } from 'react-intl';
-
 import { gql, useQuery } from '@apollo/client';
 
 import { useStyle } from '@magento/venia-ui/lib/classify';
 import AddressCard from '@magento/venia-ui/lib/components/CheckoutPage/AddressBook/addressCard';
-
-import defaultClasses from './summary.module.css';
-import { useAmazonPaymentDescriptor } from '../../../talons/AmazonCheckoutSession/useAmazonPaymentDescriptor';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import { useAppContext } from '@magento/peregrine/lib/context/app';
+
+import { useAmazonCheckout } from '../../../talons/AmazonCheckoutSession/useAmazonCheckout';
+import defaultClasses from './summary.module.css';
 
 const Summary = props => {
     const { onEdit } = props;
 
     const classes = useStyle(defaultClasses, props.classes);
     const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session')).id;
-    const { paymentDescriptor } = useAmazonPaymentDescriptor({amazonSessionId: checkoutSessionId});
+    const { amazonPaymentDescriptor } = useAmazonCheckout({amazonSessionId: checkoutSessionId});
 
     const [{cartId}] = useCartContext();
     const [{drawer},] = useAppContext();
 
-    const formattedDescriptor = paymentDescriptor ?
-        paymentDescriptor.payment.split('(')[0] : null;
+    const formattedDescriptor = amazonPaymentDescriptor ?
+        amazonPaymentDescriptor.split('(')[0] : null;
     const displayMessageSuffix = formattedDescriptor ?
         ` (${formattedDescriptor})` : '';
 
