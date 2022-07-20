@@ -19,6 +19,7 @@ const AmazonButton = props => {
         'PayAndShip'
         : 'SignIn';
 
+    const buttonId = 'AmazonButton_' + props.placement;
 
     useEffect(() => {
         if (amazonConfig && amznScriptStatus === 'ready') {
@@ -29,7 +30,7 @@ const AmazonButton = props => {
                 ledgerCurrency: amazonConfig.currency,
                 checkoutLanguage: amazonConfig.language,
                 productType: productType,
-                placement: 'Other',
+                placement: props.placement,
                 buttonColor: amazonConfig.button_color,
                 sandbox: amazonConfig.sandbox
             };
@@ -47,16 +48,21 @@ const AmazonButton = props => {
                 };
             }
 
-            window.amazon.Pay.renderButton('#AmazonButton', buttonConfig);
+            try {
+                amazon.Pay.renderButton(`#${buttonId}`, buttonConfig);
+            } catch (err) {
+                console.log("Failed to render Amazon Pay button: " + err);
+                return;
+            }
         }
     }, [amazonConfig, amznScriptStatus]);
 
     return amznLoading ? (
-        <div id='AmazonButton'>
+        <div id={buttonId}>
             <Shimmer width={10}/>
         </div>
      ) : (
-        <div id='AmazonButton' className={classes.amazonButton}/>
+        <div id={buttonId} className={classes.amazonButton} />
      );
 };
 

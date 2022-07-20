@@ -72,9 +72,6 @@ module.exports = targets => {
     );
 
     const targetableFactory = Targetables.using(targets);
-    const PdpComponent = targetableFactory.module(
-        '@magento/venia-ui/lib/components/ProductFullDetail/productFullDetail.js'
-    );
     const MiniCartComponent = targetableFactory.module(
         '@magento/venia-ui/lib/components/MiniCart/miniCart.js'
     );
@@ -85,21 +82,29 @@ module.exports = targets => {
         '@magento/venia-ui/lib/components/SignIn/signIn.js'
     );
 
-    PdpComponent.insertAfterSource(
-        './CustomAttributes\';',
-        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
-    );
-    PdpComponent.insertAfterSource(
-        '{cartActionContent}',
-        '\n\t\t\t\t\t<AmazonButton productType={\'checkout\'}/>'
-    );
     MiniCartComponent.insertAfterSource(
         './ProductList\';',
         '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
     );
     MiniCartComponent.insertAfterSource(
         'defaultMessage={\'CHECKOUT\'}\n                    />\n                </Button>\n',
-        '\t\t\t\t<AmazonButton productType={\'checkout\'}/>\n'
+        '\t\t\t\t<AmazonButton productType={\'checkout\'} placement={\'Cart\'}/>\n'
+    );
+    PriceSummaryComponent.insertAfterSource(
+        './taxSummary\';',
+        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+    );
+    PriceSummaryComponent.insertAfterSource(
+        'handleProceedToCheckout,\n',
+        '        isAmazonCheckout,\n'
+    );
+    PriceSummaryComponent.insertAfterSource(
+        ': null;\n',
+        '\nconst amazonButtonContent = !isAmazonCheckout ? <AmazonButton productType={\'checkout\'} placement={\'Cart\'}/> : null;\n'
+    );
+    PriceSummaryComponent.insertAfterSource(
+        '{proceedToCheckoutButton}\n',
+        '            {amazonButtonContent}\n'
     );
     SignInComponent.insertAfterSource(
         'import GoogleRecaptcha from \'../GoogleReCaptcha\';',
@@ -107,7 +112,7 @@ module.exports = targets => {
     );
     SignInComponent.insertAfterSource(
         'defaultMessage={\'Create an Account\'}\n                        />\n                    </Button>\n',
-        '\t\t\t\t\t<AmazonButton productType={\'signin\'}/>\n'
+        '\t\t\t\t\t<AmazonButton productType={\'signin\'} placement={\'Other\'}/>\n'
     );
 
     const peregrineTargets = targets.of("@magento/peregrine");
@@ -125,6 +130,10 @@ module.exports = targets => {
         );
         talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentInformation.wrapWith(
             '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentInformationWrapper.js'
+        );
+        // @magento/peregrine/lib/talons/CartPage/PriceSummary/usePriceSummary
+        talonWrapperConfig.CartPage.PriceSummary.usePriceSummary.wrapWith(
+            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CartPage/PriceSummary/usePriceSummary.js'
         );
     });
 };
