@@ -75,6 +75,9 @@ module.exports = targets => {
     const MiniCartComponent = targetableFactory.module(
         '@magento/venia-ui/lib/components/MiniCart/miniCart.js'
     );
+    const PdpComponent = targetableFactory.module(
+        '@magento/venia-ui/lib/components/ProductFullDetail/productFullDetail.js'
+    );
     const PriceSummaryComponent = targetableFactory.module(
         '@magento/venia-ui/lib/components/CartPage/PriceSummary/priceSummary.js'
     );
@@ -89,6 +92,14 @@ module.exports = targets => {
     MiniCartComponent.insertAfterSource(
         'defaultMessage={\'CHECKOUT\'}\n                    />\n                </Button>\n',
         '\t\t\t\t<AmazonButton productType={\'checkout\'} placement={\'Cart\'}/>\n'
+    );
+    PdpComponent.insertAfterSource(
+        './CustomAttributes\';',
+        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+    );
+    PdpComponent.insertAfterSource(
+        '{cartActionContent}',
+        '\n\t\t\t\t\t<AmazonButton productType={\'checkout\'} placement={\'Product\'} handleAddToCart={handleAddToCart}/>'
     );
     PriceSummaryComponent.insertAfterSource(
         './taxSummary\';',
