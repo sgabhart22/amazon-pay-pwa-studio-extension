@@ -20,10 +20,10 @@ The @magento/venia-ui package now offers a method to alter standard PWA Studio c
 	    'defaultMessage={\'CHECKOUT\'}\n />\n </Button>\n',
 	    '\t\t\t\t<AmazonButton productType={\'checkout\'}/>\n'
     );
-It's worth noting that the tabs and newlines included are mostly superficial, but will make the final component file easier to read and debug if you need to inspect the source during debugging.
+It's worth noting that the tabs and newlines included are mostly superficial, but will make the final component file easier to read and debug if you need to inspect the source during development.
 
 ## Redirect URLs
-In order to facilitate communication between Amazon and Magento , Amazon Pay depends on a few endpoints to review checkout, handle checkout results, and handle Amazon Sign In results, among others. These URLs are configurable and can be found in the Magento admin configuration under **Advanced > Developer Options** from the Amazon Pay settings.
+In order to facilitate communication between Amazon and Magento, Amazon Pay depends on a few endpoints to review checkout, handle checkout results, and handle Amazon Sign In results, among others. These URLs are configurable and can be found in the Magento admin configuration under **Advanced > Developer Options** from the Amazon Pay settings.
 
 For example, the *Amazon checkout review return URL* by default is `amazon_pay/login/checkout`. This is the URL where Amazon redirects customers after they authenticate with Amazon for a checkout session; with no other prefix, this will redirect the customer to `<your-magento-backend-base-url>/amazon_pay/login/checkout`. With a custom frontend, this needs to redirect to `<your-storefront-url>/<your-amazon-checkout-review-return-url>`. In the example intercept.js, a route is added to handle the checkout review:
 
