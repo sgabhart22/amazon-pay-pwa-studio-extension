@@ -1,28 +1,27 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Redirect, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-
 import { useApolloClient, useMutation } from '@apollo/client';
-import { clearCartDataFromCache } from '@magento/peregrine/lib/Apollo/clearCartDataFromCache';
-import { clearCustomerDataFromCache } from '@magento/peregrine/lib/Apollo/clearCustomerDataFromCache';
-import { RestApi, useToasts } from '@magento/peregrine';
-import mergeOperations from '@magento/peregrine/lib/util/shallowMerge';
+import { Form } from 'informed';
+
 import { useUserContext } from '@magento/peregrine/lib/context/user';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
+import { RestApi, useToasts } from '@magento/peregrine';
+import { clearCartDataFromCache } from '@magento/peregrine/lib/Apollo/clearCartDataFromCache';
+import { clearCustomerDataFromCache } from '@magento/peregrine/lib/Apollo/clearCustomerDataFromCache';
+import mergeOperations from '@magento/peregrine/lib/util/shallowMerge';
 import { useAwaitQuery } from '@magento/peregrine/lib/hooks/useAwaitQuery';
 import { retrieveCartId } from '@magento/peregrine/lib/store/actions/cart';
+import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/SignIn/signIn.gql';
 
+import { useStyle } from '@magento/venia-ui/lib/classify';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
-import { Form } from 'informed';
+import Button from '@magento/venia-ui/lib/components/Button';
 import FormError from '@magento/venia-ui/lib/components/FormError/formError';
+import Password from '@magento/venia-ui/lib/components/Password';
 import { isRequired } from '@magento/venia-ui/lib/util/formValidators';
 
-import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/SignIn/signIn.gql';
-import { useStyle } from '@magento/venia-ui/lib/classify';
 import defaultClasses from './amazon-sign-in.css';
-import Password from '@magento/venia-ui/lib/components/Password';
-import Button from '@magento/venia-ui/lib/components/Button';
-
 const { request } = RestApi.Magento2;
 
 function useQuery() {

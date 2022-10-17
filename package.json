@@ -1,5 +1,5 @@
 {
-  "name": "@amzn/amazon-pay-pwa-studio-extension",
+  "name": "@bg/amazon-pay-pwa-studio",
   "version": "1.0.0",
   "description": "Sample PWA Studio implementation for the amzn/amazon-pay-magento-2-module extension",
   "main": "src/index.js",
@@ -18,7 +18,7 @@
 		}
 	},
   "peerDependencies": {
-    "@magento/pwa-buildpack": "~11.3.0",
+    "@magento/pwa-buildpack": "~11.4.0",
     "react": "~17.0.1",
     "react-dom": "~17.0.1"
   },

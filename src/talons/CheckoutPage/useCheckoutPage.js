@@ -9,7 +9,7 @@ const wrapUseCheckoutPage = original => {
             ...defaults 
         } = original(props);
         
-        const [{cartId}] = useCartContext();
+        const [{ cartId }] = useCartContext();
         
         const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session'))?.id; 
         const isAmazonCheckout = checkoutSessionId;

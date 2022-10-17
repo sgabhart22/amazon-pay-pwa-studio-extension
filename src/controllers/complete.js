@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
 import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
+
+import { useCartContext } from '@magento/peregrine/lib/context/cart';
+import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/CheckoutPage/checkoutPage.gql.js';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
 import OrderConfirmationPage from '@magento/venia-ui/lib/components/CheckoutPage/OrderConfirmationPage';
-import { useCartContext } from '@magento/peregrine/lib/context/cart';
 
-import DEFAULT_OPERATIONS from '@magento/peregrine/lib/talons/CheckoutPage/checkoutPage.gql.js';
 import { useAmazonCheckout } from '../talons/AmazonCheckoutSession/useAmazonCheckout';
 
 function useQuery() {

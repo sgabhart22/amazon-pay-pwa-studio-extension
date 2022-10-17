@@ -9,17 +9,18 @@ import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import { useAppContext } from '@magento/peregrine/lib/context/app';
 
 import { useAmazonCheckout } from '../../../talons/AmazonCheckoutSession/useAmazonCheckout';
+import AmazonButton from '../../AmazonButton/amazonButton';
 import defaultClasses from './summary.module.css';
 
 const Summary = props => {
     const { onEdit } = props;
 
     const classes = useStyle(defaultClasses, props.classes);
-    const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session')).id;
+    const checkoutSessionId = JSON.parse(localStorage.getItem('amazon-checkout-session'))?.id;
     const { amazonPaymentDescriptor } = useAmazonCheckout({amazonSessionId: checkoutSessionId});
 
-    const [{cartId}] = useCartContext();
-    const [{drawer},] = useAppContext();
+    const [{ cartId }] = useCartContext();
+    const [{ drawer },] = useAppContext();
 
     const formattedDescriptor = amazonPaymentDescriptor ?
         amazonPaymentDescriptor.split('(')[0] : null;
@@ -43,6 +44,12 @@ const Summary = props => {
         setBillingUpdated(true);
     }
 
+    const buttonContent = !checkoutSessionId ? (
+        <AmazonButton
+            placement='Other'
+            productType='checkout' />
+    ) : null;
+
     const billingAddressCardContent = billingCardData ? (
         <AddressCard
             address={billingCardData}
@@ -51,7 +58,13 @@ const Summary = props => {
             onEdit={editBilling} />    
     ) : null;
 
+    const summaryContent = buttonContent ? buttonContent : billingAddressCardContent;
+
     useEffect(() => {
+        if (!checkoutSessionId) {
+            return;
+        }
+
         if (billingData && !billingCardData) {
             const rawAddress = billingData.cart.billingAddress;
             const addressData = {
@@ -70,7 +83,7 @@ const Summary = props => {
             
             setBillingCardData(addressData);
         }
-    }, [billingData, billingUpdated]);
+    }, [checkoutSessionId, billingData, billingUpdated]);
 
     useEffect(() => {
         if (!drawer && billingUpdated) {
@@ -98,7 +111,7 @@ const Summary = props => {
                         id={'amazonPay.paymentType'}
                         defaultMessage={'Amazon Pay' + displayMessageSuffix}
                     />
-                    {billingAddressCardContent}
+                    {summaryContent}
                 </span>
             </div>
         </div>

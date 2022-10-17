@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import DEFAULT_OPERATIONS from './checkoutSession.gql';
 
@@ -18,7 +18,16 @@ export const useAmazonCheckout = props => {
      const [amazonBillingAddress, setAmazonBillingAddress] = useState(null);
      const [amazonEmail, setAmazonEmail] = useState(null);
 
-     const { data: amazonConfigData } = useQuery(getCheckoutSessionConfig);
+     const { 
+        data: amazonConfigData,
+        refetch: amazonConfigRefetch,
+        networkStatus: amazonConfigNetworkStatus 
+    } = useQuery(getCheckoutSessionConfig, {
+         variables: {
+             cartId: cartId
+         },
+         notifyOnNetworkStatusChange: true
+     });
      const amazonConfig = amazonConfigData && amazonConfigData.checkoutSessionConfig;
     
      const { data: checkoutSessionDetailsData } = useQuery(getCheckoutSessionDetails, {
@@ -91,6 +100,8 @@ export const useAmazonCheckout = props => {
 
     return {
         amazonConfig,
+        amazonConfigRefetch,
+        amazonConfigNetworkStatus,
         amazonShippingAddress,
         amazonBillingAddress,
         amazonEmail,

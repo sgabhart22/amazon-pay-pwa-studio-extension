@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { Redirect, useLocation } from 'react-router';
+
+import { useUserContext } from '@magento/peregrine/lib/context/user';
 import LoadingIndicator from '@magento/venia-ui/lib/components/LoadingIndicator';
 
+import { useAmazonCheckout } from '../talons/AmazonCheckoutSession/useAmazonCheckout';
 import { useShippingInformation } from '../hooks/useShippingInformation';
 import { useBillingAddress } from '../hooks/useBillingInformation';
 import { useCustomerEmail } from '../hooks/useCustomerEmail';
-
-import { useUserContext } from '@magento/peregrine/lib/context/user';
-import { useAmazonCheckout } from '../talons/AmazonCheckoutSession/useAmazonCheckout';
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -46,9 +46,9 @@ const CheckoutController = props => {
         amazonEmail
     } = useAmazonCheckout({amazonSessionId: checkoutSessionId});
 
-    const doneLoading = (setShippingData || setShippingError)
-        && (customerEmailData || customerEmailError)
-        && (setBillingData || setBillingError)
+    const doneLoading = !setShippingLoading
+        && !customerEmailLoading
+        && !setBillingLoading
         && amazonShippingAddress
         && amazonBillingAddress
         && amazonEmail;

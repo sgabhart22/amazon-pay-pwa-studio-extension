@@ -1,8 +1,10 @@
 const { Targetables } = require("@magento/pwa-buildpack");
 
-module.exports = targets => {
-    targets.of('@magento/pwa-buildpack').specialFeatures.tap(flags => {
-        flags[targets.name] = {esModules: true, cssModules: true};
+module.exports = (targets) => {
+    const targetables = Targetables.using(targets);
+
+	targets.of('@magento/pwa-buildpack').specialFeatures.tap(features => {
+        features[targets.name] = {esModules: true, cssModules: true};
     });
 
     const {
@@ -17,19 +19,19 @@ module.exports = targets => {
             routesArray.push({
                 name: 'Amazon Checkout Review Return URL',
                 pattern: '/amazon_pay/login/checkout',
-                path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/checkout'
+                path: 'extensions/@bg/amazon-pay-pwa-studio/src/controllers/checkout'
             });
 
             routesArray.push({
                 name: 'Amazon Checkout Result Return URL',
                 pattern: '/amazon_pay/checkout/completeSession',
-                path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/complete'
+                path: 'extensions/@bg/amazon-pay-pwa-studio/src/controllers/complete'
             });
 
             routesArray.push({
                 name: 'Amazon Sign In Result Return URL',
                 pattern: '/amazon_pay/login/authorize',
-                path: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/controllers/signin'
+                path: 'extensions/@bg/amazon-pay-pwa-studio/src/controllers/signin'
             });
 
             return routesArray;
@@ -40,7 +42,7 @@ module.exports = targets => {
         checkoutPagePaymentTypes => {
             checkoutPagePaymentTypes.add({
                 paymentCode: 'amazon_payment_v2',
-                importPath: 'extensions/@amzn/amazon-pay-pwa-studio-extension/src/components/CheckoutPage/PaymentInformation/paymentMethod.js'
+                importPath: 'extensions/@bg/amazon-pay-pwa-studio/src/components/CheckoutPage/PaymentInformation/paymentMethod.js'
             });
 
             return checkoutPagePaymentTypes;
@@ -52,7 +54,7 @@ module.exports = targets => {
             editablePaymentTypes.add({
                 paymentCode: 'amazon_payment_v2',
                 importPath:
-                'extensions/@amzn/amazon-pay-pwa-studio-extension/src/components/CheckoutPage/PaymentInformation/edit.js'
+                'extensions/@bg/amazon-pay-pwa-studio/src/components/CheckoutPage/PaymentInformation/edit.js'
             });
 
             return editablePaymentTypes;
@@ -64,30 +66,29 @@ module.exports = targets => {
             paymentSummaries.add({
                 paymentCode: 'amazon_payment_v2',
                 importPath:
-                    'extensions/@amzn/amazon-pay-pwa-studio-extension/src/components/CheckoutPage/PaymentInformation/summary.js'
+                    'extensions/@bg/amazon-pay-pwa-studio/src/components/CheckoutPage/PaymentInformation/summary.js'
             });
 
             return paymentSummaries;
         }
     );
 
-    const targetableFactory = Targetables.using(targets);
-    const MiniCartComponent = targetableFactory.module(
+    const MiniCartComponent = targetables.module(
         '@magento/venia-ui/lib/components/MiniCart/miniCart.js'
     );
-    const PdpComponent = targetableFactory.module(
+    const PdpComponent = targetables.module(
         '@magento/venia-ui/lib/components/ProductFullDetail/productFullDetail.js'
     );
-    const PriceSummaryComponent = targetableFactory.module(
+    const PriceSummaryComponent = targetables.module(
         '@magento/venia-ui/lib/components/CartPage/PriceSummary/priceSummary.js'
     );
-    const SignInComponent = targetableFactory.module(
+    const SignInComponent = targetables.module(
         '@magento/venia-ui/lib/components/SignIn/signIn.js'
     );
 
     MiniCartComponent.insertAfterSource(
         './ProductList\';',
-        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+        '\nimport AmazonButton from \'@bg/amazon-pay-pwa-studio/src/components/AmazonButton\';\n'
     );
     MiniCartComponent.insertAfterSource(
         'defaultMessage={\'CHECKOUT\'}\n                    />\n                </Button>\n',
@@ -95,7 +96,7 @@ module.exports = targets => {
     );
     PdpComponent.insertAfterSource(
         './CustomAttributes\';',
-        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+        '\nimport AmazonButton from \'@bg/amazon-pay-pwa-studio/src/components/AmazonButton\';\n'
     );
     PdpComponent.insertAfterSource(
         '{cartActionContent}',
@@ -103,7 +104,7 @@ module.exports = targets => {
     );
     PriceSummaryComponent.insertAfterSource(
         './taxSummary\';',
-        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+        '\nimport AmazonButton from \'@bg/amazon-pay-pwa-studio/src/components/AmazonButton\';\n'
     );
     PriceSummaryComponent.insertAfterSource(
         'handleProceedToCheckout,\n',
@@ -119,7 +120,7 @@ module.exports = targets => {
     );
     SignInComponent.insertAfterSource(
         'import GoogleRecaptcha from \'../GoogleReCaptcha\';',
-        '\nimport AmazonButton from \'@amzn/amazon-pay-pwa-studio-extension/src/components/AmazonButton\';\n'
+        '\nimport AmazonButton from \'@bg/amazon-pay-pwa-studio/src/components/AmazonButton\';\n'
     );
     SignInComponent.insertAfterSource(
         'defaultMessage={\'Create an Account\'}\n                        />\n                    </Button>\n',
@@ -131,20 +132,20 @@ module.exports = targets => {
 
     talonsTarget.tap((talonWrapperConfig) => {
         talonWrapperConfig.CheckoutPage.useCheckoutPage.wrapWith(
-            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/useCheckoutPage.js'
+            '@bg/amazon-pay-pwa-studio/src/talons/CheckoutPage/useCheckoutPage.js'
         );
         talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentMethods.wrapWith(
-            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentMethods.js'
+            '@bg/amazon-pay-pwa-studio/src/talons/CheckoutPage/PaymentInformation/usePaymentMethods.js'
         );
         talonWrapperConfig.CheckoutPage.ShippingInformation.useShippingInformation.wrapWith(
-            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/ShippingInformation/useShippingInformationWrapper.js'
+            '@bg/amazon-pay-pwa-studio/src/talons/CheckoutPage/ShippingInformation/useShippingInformationWrapper.js'
         );
         talonWrapperConfig.CheckoutPage.PaymentInformation.usePaymentInformation.wrapWith(
-            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CheckoutPage/PaymentInformation/usePaymentInformationWrapper.js'
+            '@bg/amazon-pay-pwa-studio/src/talons/CheckoutPage/PaymentInformation/usePaymentInformationWrapper.js'
         );
         // @magento/peregrine/lib/talons/CartPage/PriceSummary/usePriceSummary
         talonWrapperConfig.CartPage.PriceSummary.usePriceSummary.wrapWith(
-            '@amzn/amazon-pay-pwa-studio-extension/src/talons/CartPage/PriceSummary/usePriceSummary.js'
+            '@bg/amazon-pay-pwa-studio/src/talons/CartPage/PriceSummary/usePriceSummary.js'
         );
     });
 };

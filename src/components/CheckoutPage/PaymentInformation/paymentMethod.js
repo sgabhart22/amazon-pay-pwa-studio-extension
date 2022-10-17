@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
+import { useAppContext } from '@magento/peregrine/lib/context/app';
 import BillingAddress from '@magento/venia-ui/lib/components/CheckoutPage/BillingAddress';
 import { useAmazonPaymentMethod } from '../../../talons/CheckoutPage/PaymentInformation/useAmazonPaymentMethod';
-import { useAppContext } from '@magento/peregrine/lib/context/app';
 
 const PaymentMethod = props => {
     const { shouldSubmit, resetShouldSubmit } = props;
